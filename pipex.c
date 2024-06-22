@@ -31,7 +31,7 @@ void	second_child_process(int *pipes, char **argv, char **envp)
 
 	if (!pipes || !argv || !envp)
 		return ;
-	fd_output = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	fd_output = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0777);
 	if (fd_output < 0)
 		error("Open function error", NULL, &pipes[0]);
 	if ((dup2(fd_output, STDOUT_FILENO)) == -1)
