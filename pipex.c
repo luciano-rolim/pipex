@@ -73,12 +73,13 @@ void	first_child_process(int *pipes, char **argv, char **envp)
 		error("Execve function error", NULL, NULL);
 }
 
-int	fork_execution(int *pipes, char **argv, char **envp)
+int	fork_execution(int *pipes, char **argv, char **envp, int *status)
 {
 	int			count;
 	pid_t		pid;
-	int			status;
 
+	if (!pipes || !argv || !envp)
+		return (0);
 	count = 2;
 	while (--count >= 0)
 	{
@@ -94,7 +95,7 @@ int	fork_execution(int *pipes, char **argv, char **envp)
 		}
 		else
 		{
-			waitpid(pid, &status, 0);
+			waitpid(pid, status, 0);
 			close(pipes[count]);
 		}
 /*		else if (count == 0)
@@ -103,7 +104,7 @@ int	fork_execution(int *pipes, char **argv, char **envp)
 			close(pipes[count]);
 		}  */
 	}
-	return (status);
+	return (1);
 }
 
 int	main(int argc, char **argv, char **envp)
@@ -111,13 +112,14 @@ int	main(int argc, char **argv, char **envp)
 	int			pipes[2];
 	int			status;
 
-	if (!argv || argc != 5)
-		return (ft_printf("Error: expected args < in \"cmd1\" \"cmd2\" > out\n"));
 	if (!envp)
 		return (ft_printf("Error collecting envp variables\n"));
+	if (!argv || argc != 5)
+		return (ft_printf("Error: expected args < in \"cmd1\" \"cmd2\" > out\n"));
 	if (pipe(pipes) == -1)
 		error("Pipe function failure", NULL, NULL);
-	status = fork_execution(pipes, argv, envp);
+	if (!fork_execution(pipes, argv, envp, &status))
+		return(ft_printf("Error with fork_execution"));
 	status = WEXITSTATUS(status);
 	return (status);
 }
