@@ -11,6 +11,22 @@
 /* ************************************************************************** */
 
 #include "pipex.h"
+#include <errno.h>
+#include <string.h>
+
+void error2(char *error_message, int *close_fd1, int *close_fd2)
+{
+    if (!error_message)
+        return;
+    if (close_fd1)
+        close(*close_fd1);
+    if (close_fd2)
+        close(*close_fd2);
+    // Using strerror to fetch the error string and printing it
+    fprintf(stderr, "%s: %s\n", error_message, strerror(errno));
+
+    exit(EXIT_FAILURE);
+}
 
 void	error(char *error_message, int *close_fd1, int *close_fd2)
 {
@@ -58,7 +74,10 @@ void	first_child_process(int *pipes, char **argv, char **envp)
 	close(pipes[0]);
 	fd_input = open(argv[1], O_RDONLY);
 	if (fd_input < 0)
-		error("Open function error", NULL, &pipes[1]);
+	{
+		// error("Open function error1", NULL, &pipes[1]);
+		error2("Open function error2", NULL, &pipes[1]);
+	}
 	if (dup2(fd_input, STDIN_FILENO) == -1)
 		error("dup2 function error", &fd_input, &pipes[1]);
 	close(fd_input);
@@ -121,5 +140,6 @@ int	main(int argc, char **argv, char **envp)
 	if (!fork_execution(pipes, argv, envp, &status))
 		return(ft_printf("Error with fork_execution"));
 	status = WEXITSTATUS(status);
+	
 	return (status);
 }
