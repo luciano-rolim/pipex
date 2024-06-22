@@ -106,6 +106,7 @@ int	main(int argc, char **argv, char **envp)
 	int			pipes[2];
 	int			status;
 
+	write(1, "a\n", 2);
 	if (!argv || argc != 5)
 		return (ft_printf("Error: expected args < in \"cmd1\" \"cmd2\" > out\n"));
 	if (!envp)
