@@ -12,7 +12,7 @@
 
 NAME = libprintf.a
 
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -fPIC
 
 CFILES = ft_printf.c num_functions.c
 
