@@ -16,6 +16,7 @@
 # include <stdlib.h>
 # include <stddef.h>
 # include <unistd.h>
+# include <stdarg.h>
 
 typedef struct s_list
 {
@@ -76,5 +77,6 @@ int			ft_isodd(int nbr);
 long int	ft_lower_number(long int a, long int b);
 int			ft_isspace(int c);
 char		**ft_split_isspace(char const *s);
+char		*ft_strings_concat(char const *prefix, char *str1, char *str2);
 
 #endif

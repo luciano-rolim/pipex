@@ -10,6 +10,7 @@
 #                                                                              #
 # **************************************************************************** #
 
+
 # Program name
 NAME			= pipex
 
@@ -26,10 +27,14 @@ LIBFT			= $(LIBFT_DIR)libft.a
 PRINTF			= $(PRINTF_DIR)libprintf.a
 
 # Source Files
-SRC_FILES		= pipex.c \
+SRC_FILES		= pipex_codes/pipex.c \
+                  pipex_codes/utils.c
+
+# Object files
+OBJS_DIR		= objs/
 
 # Compiler SRC_FILES into .o files
-OBJS	= $(SRC_FILES:%.c=%.o)
+OBJS	= $(SRC_FILES:pipex_codes/%.c=$(OBJS_DIR)%.o)
 
 #Line 1: ensure all .o files are created + libft + printf
 #Line 2: compiles everything to generate push_swap program
@@ -45,7 +50,8 @@ $(PRINTF):
 				@make -C $(PRINTF_DIR)
 
 #Make instruction on how to compile .o if is not up to date
-%.o: %.c
+$(OBJS_DIR)%.o: pipex_codes/%.c
+			@mkdir -p $(OBJS_DIR)
 			@$(CC) $(CFLAGS) -c $< -o $@
 
 #Standard all command
@@ -53,7 +59,7 @@ all:			$(NAME)
 
 #clean > removes all .o files on all directories
 clean:
-				@find . -name "*.o" -delete
+				@find $(OBJS_DIR) -type f -name "*.o" -delete
 
 #fclean > call clean + remove push_swap file
 #extra rule to fclean the libft library

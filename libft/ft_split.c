@@ -58,15 +58,15 @@ static int	ft_wordcount(char const *s, char c)
 
 	count_word = 0;
 	i = 0;
-	while (s[i] != '\0') 
+	while (s[i] != '\0')
 	{
-		if (s[i] != c) 
+		if (s[i] != c)
 		{
 			count_word++;
 			while (s[i] != c && s[i] != '\0')
 				i++;
 		}
-		else 
+		else
 			i++;
 	}
 	return (count_word);
@@ -79,6 +79,8 @@ char	**ft_split(char const *s, char c)
 	char	**ptr;
 
 	if (!s)
+		return (NULL);
+	if (ft_strlen(s) == 0)
 		return (NULL);
 	count_word = ft_wordcount(s, c);
 	ptr = malloc((count_word + 1) * sizeof(char *));

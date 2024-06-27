@@ -23,4 +23,9 @@
 # include <unistd.h>
 # include <sys/wait.h>
 
+void	error(char *error_message, int *close_fd1, int *close_fd2);
+void	free_all(char *path, char **free_array);
+char	*find_path(char **envp, char *command);
+void	execution(char *argv, char **envp);
+
 #endif

@@ -10,23 +10,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "pipex.h"
+#include "../pipex.h"
 
-void	error(char *error_message, int *close_fd1, int *close_fd2)
+static void	second_child_process(int *pipes, char **argv, char **envp)
 {
-	if (!error_message)
-		return ;
-	if (close_fd1)
-		close(*close_fd1);
-	if (close_fd2)
-		close(*close_fd2);
-	perror(error_message);
-	exit(EXIT_FAILURE);
-}
-
-void	second_child_process(int *pipes, char **argv, char **envp)
-{
-	char	*commands[4];
 	int		fd_output;
 	int		output_file_exists;
 
@@ -35,12 +22,12 @@ void	second_child_process(int *pipes, char **argv, char **envp)
 	output_file_exists = 0;
 	if (access(argv[4], F_OK) == 0)
 		output_file_exists = 1;
-	fd_output = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0777);
+	fd_output = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (fd_output < 0)
 	{
 		if (!output_file_exists)
-			unlink(argv[4]); 
-		error("Open function error2", &pipes[0], NULL);
+			unlink(argv[4]);
+		error("Open function error", &pipes[0], NULL);
 	}
 	if ((dup2(fd_output, STDOUT_FILENO)) == -1)
 		error("dup2 function error", &fd_output, &pipes[0]);
@@ -48,17 +35,11 @@ void	second_child_process(int *pipes, char **argv, char **envp)
 	if ((dup2(pipes[0], STDIN_FILENO)) == -1)
 		error("dup2 function error", &pipes[0], NULL);
 	close(pipes[0]);
-	commands[0] = "/bin/sh";
-	commands[1] = "-c";
-	commands[2] = argv[3];
-	commands[3] = NULL;
-	if (execve("/bin/sh", commands, envp) == -1)
-		error("Execve function error", NULL, NULL);
+	execution(argv[3], envp);
 }
 
-void	first_child_process(int *pipes, char **argv, char **envp)
+static void	first_child_process(int *pipes, char **argv, char **envp)
 {
-	char	*commands[4];
 	int		fd_input;
 
 	if (!pipes || !argv || !envp)
@@ -73,24 +54,15 @@ void	first_child_process(int *pipes, char **argv, char **envp)
 	if (dup2(pipes[1], STDOUT_FILENO) == -1)
 		error("dup2 function error", &pipes[1], NULL);
 	close(pipes[1]);
-	commands[0] = "/bin/sh";
-	commands[1] = "-c";
-	commands[2] = argv[2];
-	commands[3] = NULL;
-	if (execve("/bin/sh", commands, envp) == -1)
-		error("Execve function error", NULL, NULL);
+	execution(argv[2], envp);
 }
 
-int	fork_execution(int *pipes, char **argv, char **envp, int *status)
+static void	fork_loop(int *pipes, char **argv, char **envp, pid_t *pids_array)
 {
 	int			count;
-	int			i;
 	pid_t		pid;
-	pid_t		pids_array[2];
 
-	if (!pipes || !argv || !envp)
-		return (0);
-	count = 2; //i need to create function to save lines, and in this process, potencially increase legibility, by stop using close(pipes[count]) and other shits
+	count = 2;
 	while (--count >= 0)
 	{
 		pid = fork();
@@ -109,6 +81,16 @@ int	fork_execution(int *pipes, char **argv, char **envp, int *status)
 			close(pipes[count]);
 		}
 	}
+}
+
+static int	fork_execution(int *pipes, char **argv, char **envp, int *status)
+{
+	int			i;
+	pid_t		pids_array[2];
+
+	if (!pipes || !argv || !envp)
+		return (0);
+	fork_loop(pipes, argv, envp, pids_array);
 	i = 1;
 	while (i >= 0)
 	{
@@ -123,15 +105,17 @@ int	main(int argc, char **argv, char **envp)
 	int			pipes[2];
 	int			status;
 
-	if (!envp)
+	if (!envp || !envp[0])
 		return (ft_printf("Error collecting envp variables\n"));
 	if (!argv || argc != 5)
-		return (ft_printf("Error: expected args < in \"cmd1\" \"cmd2\" > out\n"));
+	{
+		ft_printf("Error: send  args < in \"cmd1\" \"cmd2\" > out\n");
+		return (EXIT_FAILURE);
+	}
 	if (pipe(pipes) == -1)
 		error("Pipe function failure", NULL, NULL);
 	if (!fork_execution(pipes, argv, envp, &status))
-		return(ft_printf("Error with fork_execution"));
+		return (ft_printf("Error with fork_execution"));
 	status = WEXITSTATUS(status);
-	
 	return (status);
 }

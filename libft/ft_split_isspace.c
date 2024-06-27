@@ -58,7 +58,7 @@ static int	ft_wordcount(char const *s)
 
 	count_word = 0;
 	i = 0;
-	while (s[i] != '\0') 
+	while (s[i] != '\0')
 	{
 		if (!ft_isspace(s[i]))
 		{
@@ -66,7 +66,7 @@ static int	ft_wordcount(char const *s)
 			while (!ft_isspace(s[i]) && s[i] != '\0')
 				i++;
 		}
-		else 
+		else
 			i++;
 	}
 	return (count_word);
